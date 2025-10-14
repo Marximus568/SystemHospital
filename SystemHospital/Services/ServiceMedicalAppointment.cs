@@ -139,17 +139,32 @@ public static class ServiceMedicalAppointment
             // ==============================
             // Validate conflicts using repository
             // ==============================
+
             var doctorAppointments = _repository.GetByDoctorDocument(doctor.Document);
-            bool conflictExists = doctorAppointments.Any(a =>
+            bool doctorConflict = doctorAppointments.Any(a =>
                 a.Date == date && a.StartTime == chosenSlot.Start && a.EndTime == chosenSlot.End
             );
 
-            if (conflictExists)
+            if (doctorConflict)
             {
                 Console.WriteLine(
                     $"\n⚠️  Cannot schedule appointment: Doctor {doctor.FirstName} {doctor.LastName} already has an appointment at this date and time.");
                 return;
             }
+
+            // Validate conflicts for patient
+            var patientAppointments = _repository.GetByPatientDocument(client.Document);
+            bool patientConflict = patientAppointments.Any(a =>
+                a.Date == date && a.StartTime == chosenSlot.Start && a.EndTime == chosenSlot.End
+            );
+
+            if (patientConflict)
+            {
+                Console.WriteLine(
+                    $"\n⚠️  Cannot schedule appointment: Patient {client.FirstName} {client.LastName} already has an appointment at this date and time.");
+                return;
+            }
+
 
             // ==============================
             // Create appointment object
@@ -210,6 +225,7 @@ public static class ServiceMedicalAppointment
                 $"Client: {a.Clients.FirstOrDefault()?.FirstName} {a.Clients.FirstOrDefault()?.LastName}");
             Console.WriteLine($"Reason: {a.Reason}");
             Console.WriteLine($"Symptoms: {a.Symptoms}");
+            Console.WriteLine($"Status: {a.Status}");
             Console.WriteLine("----------------------------------------");
         }
     }
@@ -230,6 +246,7 @@ public static class ServiceMedicalAppointment
         Console.WriteLine($"Time: {appointment.StartTime:HH:mm} - {appointment.EndTime:HH:mm}");
         Console.WriteLine($"Reason: {appointment.Reason}");
         Console.WriteLine($"Symptoms: {appointment.Symptoms}");
+        Console.WriteLine($"Status: {appointment.Status}");
         Console.WriteLine(
             $"Veterinary: {appointment.Doctors.FirstOrDefault()?.FirstName} {appointment.Doctors.FirstOrDefault()?.LastName}");
         Console.WriteLine(
@@ -252,7 +269,7 @@ public static class ServiceMedicalAppointment
             // ==============================
             // Update appointment date
             // ==============================
-            DateOnly newDate;
+            DateOnly newDate = existing.Date; // <-- Default to current date
             while (true)
             {
                 Console.Write(
@@ -260,10 +277,7 @@ public static class ServiceMedicalAppointment
                 string input = Console.ReadLine()?.Trim() ?? "";
 
                 if (string.IsNullOrEmpty(input))
-                {
-                    newDate = existing.Date;
-                    break;
-                }
+                    break; // keep current date
 
                 if (!DateOnly.TryParse(input, out newDate))
                 {
@@ -296,7 +310,6 @@ public static class ServiceMedicalAppointment
 
                 if (string.IsNullOrEmpty(slotInput))
                 {
-                    // Keep current slot
                     chosenSlot = (0, $"{existing.StartTime:hh\\:mm} - {existing.EndTime:hh\\:mm}", existing.StartTime,
                         existing.EndTime);
                     break;
@@ -373,11 +386,9 @@ public static class ServiceMedicalAppointment
             // ==============================
             Console.WriteLine($"Current reason: {existing.Reason}");
             Console.WriteLine("Change reason? (y/n)");
-            string reason;
-            if (Console.ReadLine()?.Trim().ToLower() == "y")
-                reason = MedicalAppointment.SelectAppointmentType();
-            else
-                reason = existing.Reason;
+            string reason = Console.ReadLine()?.Trim().ToLower() == "y"
+                ? MedicalAppointment.SelectAppointmentType()
+                : existing.Reason;
 
             // ==============================
             // Update symptoms
@@ -389,20 +400,38 @@ public static class ServiceMedicalAppointment
                 symptoms = existing.Symptoms;
 
             // ==============================
-            // Validate conflicts for the doctor
+            // Validate conflicts for doctor
             // ==============================
             var doctorAppointments = _repository.GetByDoctorDocument(doctor.Document)
                 .Where(a => a.AppointmentId != existing.AppointmentId)
                 .ToList();
 
-            bool conflictExists = doctorAppointments.Any(a =>
+            bool doctorConflict = doctorAppointments.Any(a =>
                 a.Date == newDate && a.StartTime == chosenSlot.Start && a.EndTime == chosenSlot.End
             );
 
-            if (conflictExists)
+            if (doctorConflict)
             {
                 Console.WriteLine(
                     $"\n⚠️  Cannot update appointment: Doctor {doctor.FirstName} {doctor.LastName} already has an appointment at this date and time.");
+                return;
+            }
+
+            // ==============================
+            // Validate conflicts for patient
+            // ==============================
+            var patientAppointments = _repository.GetByPatientDocument(client.Document)
+                .Where(a => a.AppointmentId != existing.AppointmentId)
+                .ToList();
+
+            bool patientConflict = patientAppointments.Any(a =>
+                a.Date == newDate && a.StartTime == chosenSlot.Start && a.EndTime == chosenSlot.End
+            );
+
+            if (patientConflict)
+            {
+                Console.WriteLine(
+                    $"\n⚠️  Cannot update appointment: Patient {client.FirstName} {client.LastName} already has an appointment at this date and time.");
                 return;
             }
 
@@ -419,10 +448,7 @@ public static class ServiceMedicalAppointment
 
             bool success = _repository.Update(existing, id);
 
-            if (success)
-                Console.WriteLine("Appointment updated successfully!");
-            else
-                Console.WriteLine("Error updating appointment.");
+            Console.WriteLine(success ? "Appointment updated successfully!" : "Error updating appointment.");
         }
         catch (Exception e)
         {

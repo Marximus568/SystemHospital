@@ -13,16 +13,21 @@ public class MedicalAppointment
     public string Reason { get; set; }
     public string Symptoms { get; set; }
 
-    public MedicalAppointment() { }
-
-    public MedicalAppointment(DateOnly date, List<Doctor> veterinaries, List<Patient> clients, string reason, string symptoms)
+    public AppointmentStatus Status { get; private set; } = AppointmentStatus.Pending;
+    
+   
+    public MedicalAppointment(DateOnly date, List<Doctor> doctors, List<Patient> clients, string reason, string symptoms)
     {
         Date = date;
-        Doctors = veterinaries ?? new();
+        Doctors = doctors ?? new();
         Clients = clients ?? new();
         Reason = reason;
         Symptoms = symptoms;
+        Status = AppointmentStatus.Pending;
     }
+
+    public MedicalAppointment() { }
+
     public static List<(int Id, string Range, TimeOnly Start, TimeOnly End)> GetAvailableSlots()
     {
         return new List<(int, string, TimeOnly, TimeOnly)>
@@ -31,6 +36,18 @@ public class MedicalAppointment
             (2, "2:20 PM - 4:20 PM", new TimeOnly(14, 20), new TimeOnly(16, 20)),
             (3, "4:30 PM - 6:30 PM", new TimeOnly(16, 30), new TimeOnly(18, 30))
         };
+    }
+    
+    // Method to mark the appointment as attended
+    public void MarkAsAttended()
+    {
+        Status = AppointmentStatus.Attended;
+    }
+
+    // Method to cancel the appointment
+    public void Cancel()
+    {
+        Status = AppointmentStatus.Canceled;
     }
 
     public static string SelectAppointmentType()
@@ -49,5 +66,14 @@ public class MedicalAppointment
             "3" => "Vaccination",
             _ => "General Appointment"
         };
+    }
+    // ==============================
+    // Enum for appointment states
+    // ==============================
+    public enum AppointmentStatus
+    {
+        Pending,   // Default state when created
+        Attended,
+        Canceled
     }
 }

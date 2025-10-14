@@ -62,4 +62,11 @@ public class MedicalAppointmentRepository : IMedicalAppointment
             .Where(a => a.Doctors.Any(d => d.Document == doctorDocument))
             .ToList();
     }
+    public IEnumerable<MedicalAppointment> GetByPatientDocument(string patientDocument)
+    {
+        return Database.Database.MedicalAppointment.Values
+            .OfType<MedicalAppointment>()
+            .Where(a => a.Clients.Any(c => c.Document == patientDocument))
+            .ToList();
+    }
 }
