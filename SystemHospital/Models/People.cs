@@ -1,12 +1,12 @@
 namespace VetPetcare.Models;
 
-public abstract class People(string FirstName,string LastName, DateTime DateOfBirth, string phone, string Email, string Address, int Document)
+public abstract class People(string FirstName,string LastName, DateTime DateOfBirth, string phone, string Email, string Address, string Document)
 {
     private static int _lastId = 1;
     public int Id { get; protected set; } = _lastId++;
     public string FirstName { get; protected set; } = FirstName;
     public string LastName { get; protected set; } = LastName;
-    public int Document { get; protected set; } = Document;
+    public string Document { get; set; } = Document;
     public DateTime DateOfBirth { get; protected set; } = DateOfBirth;
     public string Phone { get; protected set; } = phone;
     public string Email { get; protected set; } = Email;

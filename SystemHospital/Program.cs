@@ -1,6 +1,9 @@
 
+using VetPetcare.Database;
 using VetPetcare.Utils;
 
-//Begin of program
 
+Database.SeedAppointments();
+
+//Begin of program
 MenuMain.MainMenu();

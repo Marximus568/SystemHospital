@@ -1,4 +1,3 @@
-
 using VetPetcare.Models;
 
 namespace VetPetcare.Repository;
@@ -11,43 +10,63 @@ public class DoctorRepository : IDoctorRepository
         return doctor;
     }
 
-    public Doctor GetById(int document)
+    public Doctor GetByDocument(string document)
     {
-        return Database.Database.Doctors.First(v => v.DoctorId == document);
+        // Search doctor by their document number safely
+        return Database.Database.Doctors.FirstOrDefault(d => d.Document == document);
     }
+
 
     public IEnumerable<Doctor> GetAll()
     {
         return Database.Database.Doctors;
     }
 
-    public bool Update(Doctor doctor, int id)
+    public bool Update(Doctor doctor, string document)
     {
-        int index = Database.Database.Doctors.FindIndex(v => v.DoctorId == id);
+        // Search for the index of the doctor with the given document
+        int index = Database.Database.Doctors.FindIndex(d => d.Document.Equals(document, StringComparison.OrdinalIgnoreCase));
 
+        // Validate if the doctor exists
         if (index == -1)
         {
-            Console.WriteLine("Veterinary not found.");
+            Console.WriteLine("Doctor not found.");
             return false;
         }
 
-        doctor.DoctorId = id;
+        // Ensure the document remains unchanged (prevent accidental overwrite)
+        doctor.Document = Database.Database.Doctors[index].Document;
+
+        // Update the existing record with the new data
         Database.Database.Doctors[index] = doctor;
 
+        Console.WriteLine($"Doctor with document '{document}' was successfully updated.");
         return true;
     }
 
-    public bool DeleteById(int document)
-    {
-        var veterinary = Database.Database.Doctors.FirstOrDefault(v => v.DoctorId == document);
 
-        if (veterinary == null)
+
+    public bool DeleteByDocument(string document)
+    {
+        // Search for the doctor with the given document
+        var doctor = Database.Database.Doctors
+            .FirstOrDefault(d => d.Document.Equals(document, StringComparison.OrdinalIgnoreCase));
+
+        // Validate if the doctor exists
+        if (doctor == null)
         {
-            Console.WriteLine("Veterinary not found.");
+            Console.WriteLine("Doctor not found.");
             return false;
         }
 
-        Database.Database.Doctors.Remove(veterinary);
+        // Remove the doctor from the database
+        Database.Database.Doctors.Remove(doctor);
+
+        Console.WriteLine($"Doctor with document '{document}' was successfully deleted.");
         return true;
+    }
+    public bool DocumentExists(string document)
+    {
+        return Database.Database.Doctors.Any(p => p.Document == document);
     }
 }

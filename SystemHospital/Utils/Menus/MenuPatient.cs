@@ -3,7 +3,7 @@ using VetPetcare.Models;
 
 public static class MenuPatient
 {
-    public static void ShowClient()
+    public static void ShowPatient()
     {
         var control = true;
         do
@@ -37,16 +37,28 @@ public static class MenuPatient
                     {
                         try
                         {
-                            Console.WriteLine("Write a document");
-                            int document = int.Parse(Console.ReadLine());
-                            ServicePatient.FindPatient(document);
-                            break;
+                            Console.Write("Enter patient document: ");
+                            string document = Console.ReadLine()?.Trim() ?? "";
+
+                            if (string.IsNullOrEmpty(document))
+                            {
+                                Console.WriteLine("Document cannot be empty.");
+                            }
+                            else if (!document.All(char.IsDigit))
+                            {
+                                Console.WriteLine("Document must contain only numeric characters.");
+                            }
+                            else
+                            {
+                                ServicePatient.FindPatient(document);
+                            }
                         }
                         catch (Exception e)
                         {
-                            Console.WriteLine(e);
-                            throw;
+                            Console.WriteLine("An error occurred while searching for the patient.");
+                            Console.WriteLine($"Error: {e.Message}");
                         }
+                        break;
                     }
                 }
 
@@ -55,16 +67,29 @@ public static class MenuPatient
                     {
                         try
                         {
-                            Console.WriteLine("Write a document");
-                            int document = int.Parse(Console.ReadLine());
-                            ServicePatient.UpdateUser(document);
-                            break;
+                            Console.Write("Enter patient document to update: ");
+                            string input = Console.ReadLine()?.Trim() ?? "";
+
+                            if (string.IsNullOrEmpty(input))
+                            {
+                                Console.WriteLine("Document cannot be empty.");
+                            }
+                            else if (!input.All(char.IsDigit))
+                            {
+                                Console.WriteLine("Document must contain only numeric characters.");
+                            }
+                            else
+                            {
+                                // If it passes all validations, proceed to update
+                                ServicePatient.UpdateUser(input);
+                            }
                         }
                         catch (Exception e)
                         {
-                            Console.WriteLine(e);
-                            throw;
+                            Console.WriteLine("An error occurred while trying to update the patient.");
+                            Console.WriteLine($"Error: {e.Message}");
                         }
+                        break;
                     }
                 }
                 case "5":
@@ -72,16 +97,30 @@ public static class MenuPatient
                     {
                         try
                         {
-                            Console.WriteLine("Write a document");
-                            int document = int.Parse(Console.ReadLine());
-                            ServicePatient.DeleteClient(document);
-                            break;
+                            Console.Write("Enter patient document to delete: ");
+                            string input = Console.ReadLine()?.Trim() ?? "";
+
+                            if (string.IsNullOrEmpty(input))
+                            {
+                                Console.WriteLine("Document cannot be empty.");
+                            }
+                            else if (!input.All(char.IsDigit))
+                            {
+                                Console.WriteLine("Document must contain only numeric characters.");
+                            }
+                            else
+                            {
+                                // Call the service if input is valid
+                                ServicePatient.DeleteClient(input);
+                            }
                         }
                         catch (Exception e)
                         {
-                            Console.WriteLine(e);
-                            throw;
+                            Console.WriteLine("An error occurred while trying to delete the patient.");
+                            Console.WriteLine($"Error: {e.Message}");
                         }
+                        break;
+
                     }
                 }
                 case "6":

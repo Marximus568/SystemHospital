@@ -34,20 +34,20 @@ public static class MenuMain
                 {
                     case "1":
                     {
-                        MenuPatient.ShowClient();
+                        MenuPatient.ShowPatient();
+                        break;
+                    }
+                    case "2":
+                    {
+                        MenuDoctor.ShowDoctor();
                         break;
                     }
                     case "3":
                     {
-                        MenuDoctor.ShowVeterinary();
-                        break;
-                    }
-                    case "4":
-                    {
                         MenuMedicalAppointment.ShowMedicalAppointment();
                         break;
                     }
-                    case "6":
+                    case "5":
                     {
                         exit = true;
                         break;

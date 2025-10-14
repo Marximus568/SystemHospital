@@ -8,7 +8,7 @@ public class MedicalAppointment
     public DateOnly Date { get; set; }
     public TimeOnly StartTime { get; set; }
     public TimeOnly EndTime { get; set; }
-    public List<Doctor> Veterinaries { get; set; } = new();
+    public List<Doctor> Doctors { get; set; } = new();
     public List<Patient> Clients { get; set; } = new();
     public string Reason { get; set; }
     public string Symptoms { get; set; }
@@ -18,7 +18,7 @@ public class MedicalAppointment
     public MedicalAppointment(DateOnly date, List<Doctor> veterinaries, List<Patient> clients, string reason, string symptoms)
     {
         Date = date;
-        Veterinaries = veterinaries ?? new();
+        Doctors = veterinaries ?? new();
         Clients = clients ?? new();
         Reason = reason;
         Symptoms = symptoms;

@@ -2,8 +2,8 @@
 public interface IPatientRepository
 {
     Patient Create(Patient patient);
-    Patient GetByDocument(int document);
+    Patient GetByDocument(string document);
     IEnumerable<Patient> GetAll();
-    bool Update(Patient patient, int document);
-    bool DeleteById(int document);
+    bool Update(Patient patient, string document);
+    bool DeleteByDocument(string document);
 }

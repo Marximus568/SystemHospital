@@ -41,3 +41,4 @@
 /home/Coder/RiderProjects/SystemHospital/SystemHospital/obj/Debug/net9.0/SystemHospital.pdb
 /home/Coder/RiderProjects/SystemHospital/SystemHospital/obj/Debug/net9.0/SystemHospital.genruntimeconfig.cache
 /home/Coder/RiderProjects/SystemHospital/SystemHospital/obj/Debug/net9.0/ref/SystemHospital.dll
+/home/Coder/RiderProjects/SystemHospital/SystemHospital/obj/Debug/net9.0/SystemHospital.sourcelink.json

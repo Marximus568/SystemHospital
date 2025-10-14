@@ -8,7 +8,7 @@ public class Patient(
     string phone,
     string email,
     string address,
-    int document)
+    string document)
     : People(firstName, lastName, dateOfBirth, phone, email, address, document)
 {
     public int PatientId

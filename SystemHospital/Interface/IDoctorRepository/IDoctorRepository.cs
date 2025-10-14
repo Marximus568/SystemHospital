@@ -2,8 +2,8 @@ using VetPetcare.Models;
 public interface IDoctorRepository
 {
     Doctor Create(Doctor doctor);
-    Doctor GetById(int document);
+    Doctor GetByDocument(string document);
     IEnumerable<Doctor> GetAll();
-    bool Update(Doctor doctor, int document);
-    bool DeleteById(int document);
+    bool Update(Doctor doctor, string document);
+    bool DeleteByDocument(string document);
 }

@@ -8,143 +8,172 @@ public static class ServiceDoctor
     // ==========================
     // CREATE VETERINARY
     // ==========================
-    public static Doctor? CreateVeterinary()
+    public static Doctor? CreateDoctor()
     {
         try
         {
+            // Ask for first name
             string firstName;
             do
             {
-                Console.WriteLine("Enter the veterinary's first name:");
+                Console.WriteLine("Enter doctor's first name:");
                 firstName = Console.ReadLine()?.Trim();
                 if (string.IsNullOrWhiteSpace(firstName))
                     Console.WriteLine("First name cannot be empty.");
             } while (string.IsNullOrWhiteSpace(firstName));
 
+            // Ask for last name
             string lastName;
             do
             {
-                Console.WriteLine("Enter the veterinary's last name:");
+                Console.WriteLine("Enter doctor's last name:");
                 lastName = Console.ReadLine()?.Trim();
                 if (string.IsNullOrWhiteSpace(lastName))
                     Console.WriteLine("Last name cannot be empty.");
             } while (string.IsNullOrWhiteSpace(lastName));
-            int document;
+
+            // Ask for date of birth
+            DateTime dateOfBirth;
+            int currentYear = DateTime.Now.Year;
+            while (true)
+            {
+                Console.WriteLine("Enter date of birth (yyyy-mm-dd):");
+                string input = Console.ReadLine()?.Trim() ?? "";
+
+                if (!DateTime.TryParse(input, out dateOfBirth))
+                {
+                    Console.WriteLine("Invalid date format. Please use yyyy-mm-dd.");
+                    continue;
+                }
+
+                int age = currentYear - dateOfBirth.Year;
+                if (dateOfBirth > DateTime.Now)
+                    Console.WriteLine("Date of birth cannot be in the future.");
+                else if (age > 100)
+                    Console.WriteLine("Age cannot be greater than 100 years.");
+                else
+                    break; // valid date
+            }
+
+            // Ask for phone number
+            string phone;
             do
             {
-                Console.WriteLine("Enter your document number:");
+                Console.WriteLine("Enter doctor's phone number:");
+                phone = Console.ReadLine()?.Trim() ?? "";
 
-                string input = Console.ReadLine()?.Trim();
+                if (!phone.All(char.IsDigit))
+                    Console.WriteLine("The phone number must contain only digits.");
+                else if (phone.Length < 7 || phone.Length > 15)
+                    Console.WriteLine("The phone number must be between 7 and 15 digits long.");
+                else
+                    break; // valid phone
+            } while (true);
 
-                // Validate that input is not empty
-                if (string.IsNullOrEmpty(input))
+            // Ask for document number
+            string document;
+            do
+            {
+                Console.WriteLine("Enter doctor's document number:");
+                document = Console.ReadLine()?.Trim();
+
+                if (string.IsNullOrEmpty(document))
                 {
                     Console.WriteLine("Document number cannot be empty.");
                     continue;
                 }
 
-                // Validate that input is a number
-                if (!int.TryParse(input, out document))
+                if (!document.All(char.IsDigit))
                 {
                     Console.WriteLine("Document must contain only numeric characters.");
                     continue;
                 }
 
-                // Validate length (between 6 and 10 digits)
-                if (input.Length < 6 || input.Length > 10)
+                if (document.Length < 6 || document.Length > 10)
                 {
                     Console.WriteLine("Document must be between 6 and 10 digits.");
                     continue;
                 }
 
-                // If all validations pass, exit loop
-                break;
+                // Validate uniqueness through repository
+                if (_repository.DocumentExists(document))
+                {
+                    Console.WriteLine("A doctor with this document already exists. Please enter a different one.");
+                    continue;
+                }
 
+                break; // valid and unique document
             } while (true);
 
-            DateTime dateOfBirth;
-            while (true)
-            {
-                Console.WriteLine("Enter the veterinary's date of birth (yyyy-mm-dd):");
-                if (DateTime.TryParse(Console.ReadLine(), out dateOfBirth))
-                    break;
-                Console.WriteLine("Invalid date format. Please use yyyy-mm-dd.");
-            }
-
-            string gender;
-            do
-            {
-                Console.WriteLine("Enter the veterinary's gender (M/F):");
-                gender = Console.ReadLine()?.Trim().ToUpper();
-                if (gender != "M" && gender != "F")
-                    Console.WriteLine("Please enter 'M' for male or 'F' for female.");
-            } while (gender != "M" && gender != "F");
-
+            // Ask for email
             string email;
             do
             {
-                Console.WriteLine("Enter the veterinary's email:");
+                Console.WriteLine("Enter doctor's email:");
                 email = Console.ReadLine()?.Trim();
                 if (string.IsNullOrWhiteSpace(email) || !email.Contains("@"))
                     Console.WriteLine("Invalid email. Please include '@'.");
             } while (string.IsNullOrWhiteSpace(email) || !email.Contains("@"));
 
+            // Ask for address
             string address;
             do
             {
-                Console.WriteLine("Enter the veterinary's address:");
+                Console.WriteLine("Enter doctor's address:");
                 address = Console.ReadLine()?.Trim();
                 if (string.IsNullOrWhiteSpace(address))
                     Console.WriteLine("Address cannot be empty.");
             } while (string.IsNullOrWhiteSpace(address));
 
+            // Ask for speciality
             string speciality;
             do
             {
-                Console.WriteLine("Enter the veterinary's speciality:");
+                Console.WriteLine("Enter doctor's speciality:");
                 speciality = Console.ReadLine()?.Trim();
                 if (string.IsNullOrWhiteSpace(speciality))
                     Console.WriteLine("Speciality cannot be empty.");
             } while (string.IsNullOrWhiteSpace(speciality));
-            
 
-            var newVeterinary = new Doctor(firstName, lastName, dateOfBirth, gender, email, address, speciality,document);
-            _repository.Create(newVeterinary);
+            // Create new doctor
+            var newDoctor = new Doctor(firstName, lastName, dateOfBirth, phone, email, address, speciality, document);
+            _repository.Create(newDoctor);
 
-            Console.WriteLine("\nVeterinary created successfully!");
-            Console.WriteLine($"Veterinary ID: {newVeterinary.DoctorId}");
+            Console.WriteLine("\n✅ Doctor created successfully!");
+            Console.WriteLine($"Doctor ID: {newDoctor.DoctorId}");
 
-            return newVeterinary;
+            return newDoctor;
         }
         catch (Exception e)
         {
-            Console.WriteLine("An error occurred while creating the veterinary.");
-            Console.WriteLine(e.Message);
+            Console.WriteLine("❌ An error occurred while creating the doctor.");
+            Console.WriteLine($"Error details: {e.Message}");
         }
 
         return null;
     }
 
+
     // ==========================
     // GET BY ID
     // ==========================
-    public static void FindVeterinary(int id)
+    public static void FindDocument(string document)
     {
-        var veterinary = _repository.GetById(id);
-        if (veterinary == null)
+        var doctor = _repository.GetByDocument(document);
+        if (doctor == null)
         {
-            Console.WriteLine("Veterinary not found.");
+            Console.WriteLine("Doctor not found.");
             return;
         }
 
-        Console.WriteLine("\nVeterinary found:");
-        Console.WriteLine($"ID: {veterinary.DoctorId}");
-        Console.WriteLine($"Name: {veterinary.FirstName} {veterinary.LastName}");
-        Console.WriteLine($"Date of Birth: {veterinary.DateOfBirth}");
-        Console.WriteLine($"Gender: {veterinary.Phone}");
-        Console.WriteLine($"Email: {veterinary.Email}");
-        Console.WriteLine($"Address: {veterinary.Address}");
-        Console.WriteLine($"Speciality: {veterinary.speciality}");
+        Console.WriteLine("\nDoctor found:");
+        Console.WriteLine($"ID: {doctor.DoctorId}");
+        Console.WriteLine($"Name: {doctor.FirstName} {doctor.LastName}");
+        Console.WriteLine($"Date of Birth: {doctor.DateOfBirth}");
+        Console.WriteLine($"Gender: {doctor.Phone}");
+        Console.WriteLine($"Email: {doctor.Email}");
+        Console.WriteLine($"Address: {doctor.Address}");
+        Console.WriteLine($"Speciality: {doctor.speciality}");
     }
 
     // ==========================
@@ -156,7 +185,7 @@ public static class ServiceDoctor
 
         if (veterinaries.Count == 0)
         {
-            Console.WriteLine("No veterinaries registered.");
+            Console.WriteLine("No doctors registered.");
             return;
         }
 
@@ -172,127 +201,215 @@ public static class ServiceDoctor
     // ==========================
     // UPDATE
     // ==========================
-    public static void UpdateVeterinary(int id)
+
+    public static void UpdateDoctor(string document)
     {
         try
         {
-            string firstName;
+            // Ask for current document and fetch doctor automatically
+            string currentDocument;
+            Doctor existingDoctor;
+
             do
             {
-                Console.WriteLine("Enter new first name:");
-                firstName = Console.ReadLine()?.Trim();
-                if (string.IsNullOrWhiteSpace(firstName))
-                    Console.WriteLine("First name cannot be empty.");
-            } while (string.IsNullOrWhiteSpace(firstName));
+                Console.WriteLine("Enter the current document number of the doctor you want to update:(It is the same number that you did use)");
+                currentDocument = Console.ReadLine()?.Trim() ?? "";
 
-            string lastName;
-            do
-            {
-                Console.WriteLine("Enter new last name:");
-                lastName = Console.ReadLine()?.Trim();
-                if (string.IsNullOrWhiteSpace(lastName))
-                    Console.WriteLine("Last name cannot be empty.");
-            } while (string.IsNullOrWhiteSpace(lastName));
-            int document;
-            do
-            {
-                Console.WriteLine("Enter your document number:");
-
-                string input = Console.ReadLine()?.Trim();
-
-                // Validate that input is not empty
-                if (string.IsNullOrEmpty(input))
+                if (string.IsNullOrEmpty(currentDocument))
                 {
-                    Console.WriteLine("Document number cannot be empty.");
+                    Console.WriteLine("Document cannot be empty.");
                     continue;
                 }
 
-                // Validate that input is a number
-                if (!int.TryParse(input, out document))
+                if (!currentDocument.All(char.IsDigit))
                 {
                     Console.WriteLine("Document must contain only numeric characters.");
                     continue;
                 }
 
-                // Validate length (between 6 and 10 digits)
-                if (input.Length < 6 || input.Length > 10)
+                // Fetch doctor automatically from repository
+                existingDoctor = _repository.GetByDocument(currentDocument);
+
+                if (existingDoctor == null)
                 {
-                    Console.WriteLine("Document must be between 6 and 10 digits.");
+                    Console.WriteLine("No doctor found with this document number. Try again.");
                     continue;
                 }
 
-                // If all validations pass, exit loop
-                break;
-
+                break; // Doctor found
             } while (true);
+
+            Console.WriteLine($"Doctor found: {existingDoctor.FirstName} {existingDoctor.LastName}");
+
+            // Ask if user wants to update document
+            bool wantsToChangeDoc = false;
+            while (true)
+            {
+                Console.WriteLine("Do you want to update the document number? (Y/N)");
+                string response = Console.ReadLine()?.Trim().ToUpper();
+
+                if (response == "Y")
+                {
+                    wantsToChangeDoc = true;
+                    break;
+                }
+                else if (response == "N")
+                {
+                    wantsToChangeDoc = false;
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid option. Please enter 'Y' or 'N'.");
+                }
+            }
+
+            // If the user wants to change the document, validate uniqueness
+            string newDocument = existingDoctor.Document;
+            if (wantsToChangeDoc)
+            {
+                do
+                {
+                    Console.WriteLine("Enter the new document number:");
+                    string input = Console.ReadLine()?.Trim() ?? "";
+
+                    if (string.IsNullOrEmpty(input))
+                    {
+                        Console.WriteLine("Document cannot be empty.");
+                        continue;
+                    }
+
+                    if (!input.All(char.IsDigit))
+                    {
+                        Console.WriteLine("Document must contain only numeric characters.");
+                        continue;
+                    }
+
+                    if (input.Length < 6 || input.Length > 10)
+                    {
+                        Console.WriteLine("Document must be between 6 and 10 digits.");
+                        continue;
+                    }
+
+                    if (_repository.DocumentExists(input))
+                    {
+                        Console.WriteLine("This document is already registered to another doctor.");
+                        continue;
+                    }
+
+                    newDocument = input;
+                    break;
+                } while (true);
+            }
+
+            // Collect updated fields
+            Console.WriteLine("Enter new first name (leave empty to keep current):");
+            string firstName = Console.ReadLine()?.Trim();
+            if (string.IsNullOrEmpty(firstName)) firstName = existingDoctor.FirstName;
+
+            Console.WriteLine("Enter new last name (leave empty to keep current):");
+            string lastName = Console.ReadLine()?.Trim();
+            if (string.IsNullOrEmpty(lastName)) lastName = existingDoctor.LastName;
 
             DateTime dateOfBirth;
             while (true)
             {
-                Console.WriteLine("Enter new date of birth (yyyy-mm-dd):");
-                if (DateTime.TryParse(Console.ReadLine(), out dateOfBirth))
+                Console.WriteLine("Enter new date of birth (yyyy-mm-dd) or leave empty to keep current:");
+                string input = Console.ReadLine()?.Trim();
+
+                if (string.IsNullOrEmpty(input))
+                {
+                    dateOfBirth = existingDoctor.DateOfBirth;
                     break;
+                }
+
+                if (DateTime.TryParse(input, out dateOfBirth))
+                    break;
+
                 Console.WriteLine("Invalid date format. Try again.");
             }
 
-            string gender;
+            string phone;
             do
             {
-                Console.WriteLine("Enter new gender (M/F):");
-                gender = Console.ReadLine()?.Trim().ToUpper();
-                if (gender != "M" && gender != "F")
-                    Console.WriteLine("Please enter 'M' or 'F'.");
-            } while (gender != "M" && gender != "F");
+                Console.WriteLine("Enter new phone number (leave empty to keep current):");
+                phone = Console.ReadLine()?.Trim();
+                if (string.IsNullOrEmpty(phone))
+                {
+                    phone = existingDoctor.Phone;
+                    break;
+                }
+
+                if (!phone.All(char.IsDigit))
+                {
+                    Console.WriteLine("Phone number must contain only numeric characters.");
+                    continue;
+                }
+
+                if (phone.Length < 7 || phone.Length > 15)
+                {
+                    Console.WriteLine("Phone number must be between 7 and 15 digits.");
+                    continue;
+                }
+
+                break;
+            } while (true);
 
             string email;
             do
             {
-                Console.WriteLine("Enter new email:");
+                Console.WriteLine("Enter new email (leave empty to keep current):");
                 email = Console.ReadLine()?.Trim();
-                if (string.IsNullOrWhiteSpace(email) || !email.Contains("@"))
+                if (string.IsNullOrEmpty(email))
+                {
+                    email = existingDoctor.Email;
+                    break;
+                }
+
+                if (!email.Contains("@") || !email.Contains("."))
+                {
                     Console.WriteLine("Invalid email format.");
-            } while (string.IsNullOrWhiteSpace(email) || !email.Contains("@"));
+                    continue;
+                }
 
-            string address;
-            do
-            {
-                Console.WriteLine("Enter new address:");
-                address = Console.ReadLine()?.Trim();
-                if (string.IsNullOrWhiteSpace(address))
-                    Console.WriteLine("Address cannot be empty.");
-            } while (string.IsNullOrWhiteSpace(address));
+                break;
+            } while (true);
 
-            string speciality;
-            do
-            {
-                Console.WriteLine("Enter new speciality:");
-                speciality = Console.ReadLine()?.Trim();
-                if (string.IsNullOrWhiteSpace(speciality))
-                    Console.WriteLine("Speciality cannot be empty.");
-            } while (string.IsNullOrWhiteSpace(speciality));
+            Console.WriteLine("Enter new address (leave empty to keep current):");
+            string address = Console.ReadLine()?.Trim();
+            if (string.IsNullOrEmpty(address)) address = existingDoctor.Address;
 
-            var tempVeterinary = new Doctor(firstName, lastName, dateOfBirth, gender, email, address, speciality,document);
-            var success = _repository.Update(tempVeterinary, id);
+            Console.WriteLine("Enter new speciality (leave empty to keep current):");
+            string speciality = Console.ReadLine()?.Trim();
+            if (string.IsNullOrEmpty(speciality)) speciality = existingDoctor.speciality;
+
+            // Create updated object
+            var updatedDoctor = new Doctor(firstName, lastName, dateOfBirth, phone, email, address, speciality,
+                newDocument);
+
+            // Update repository
+            bool success = _repository.Update(updatedDoctor, currentDocument);
 
             if (success)
-                Console.WriteLine("Veterinary updated successfully.");
+                Console.WriteLine("Doctor updated successfully.");
             else
-                Console.WriteLine("Error: veterinary not found or could not be updated.");
+                Console.WriteLine("Error: doctor not found or could not be updated.");
         }
         catch (Exception e)
         {
-            Console.WriteLine("Something went wrong while updating the veterinary.");
+            Console.WriteLine("Something went wrong while updating the doctor.");
             Console.WriteLine($"Error Type: {e.GetType().Name}");
             Console.WriteLine($"Details: {e.Message}");
         }
     }
 
-    // ==========================
-    // DELETE
-    // ==========================
-    public static void DeleteVeterinary(int document)
+
+// ==========================
+// DELETE
+// ==========================
+    public static void DeleteDoctor(string document)
     {
-        var deleted = _repository.DeleteById(document);
+        var deleted = _repository.DeleteByDocument(document);
 
         if (!deleted)
         {

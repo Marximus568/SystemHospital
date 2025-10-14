@@ -6,7 +6,7 @@ public class Doctor(string FirstName,
     string phone, 
     string Email, 
     string Address,
-    int Document) : People(FirstName,
+    string Document) : People(FirstName,
     LastName, DateOfBirth, phone, Email, Address,Document)
 {
     public int DoctorId
@@ -23,7 +23,7 @@ public class Doctor(string FirstName,
         string Email,
         string Address, 
         string speciality,
-        int Document) : this(FirstName, LastName, DateOfBirth, phone, Email, Address,Document)
+        string Document) : this(FirstName, LastName, DateOfBirth, phone, Email, Address,Document)
     {
         this.speciality = speciality;
     }

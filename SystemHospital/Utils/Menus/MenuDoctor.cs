@@ -2,20 +2,20 @@ namespace VetPetcare.Utils;
 
 public static class MenuDoctor
 {
-    public static void ShowVeterinary()
+    public static void ShowDoctor()
     {
         bool control = true;
 
         do
         {
             Console.WriteLine("==========================");
-            Console.WriteLine("   Veterinary Management");
+            Console.WriteLine("   Doctor Management");
             Console.WriteLine("==========================");
-            Console.WriteLine("1. Register a veterinary.");
-            Console.WriteLine("2. Show all veterinaries.");
-            Console.WriteLine("3. Find a veterinary by ID.");
-            Console.WriteLine("4. Update a veterinary.");
-            Console.WriteLine("5. Delete a veterinary.");
+            Console.WriteLine("1. Register a doctor.");
+            Console.WriteLine("2. Show all doctors.");
+            Console.WriteLine("3. Find a doctor by document.");
+            Console.WriteLine("4. Update a doctor.");
+            Console.WriteLine("5. Delete a doctor.");
             Console.WriteLine("6. Leave.");
             Console.WriteLine("==========================");
             Console.Write("Choose an option: ");
@@ -26,7 +26,7 @@ public static class MenuDoctor
             {
                 case "1":
                 {
-                    ServiceDoctor.CreateVeterinary();
+                    ServiceDoctor.CreateDoctor();
                     break;
                 }
 
@@ -41,35 +41,48 @@ public static class MenuDoctor
                     try
                     {
                         Console.Write("Enter doctor document: ");
-                        if (int.TryParse(Console.ReadLine(), out int document))
-                            ServiceDoctor.FindVeterinary(document);
+                        string document = Console.ReadLine()?.Trim() ?? "";
+
+                        if (!string.IsNullOrEmpty(document))
+                        {
+                            ServiceDoctor.FindDocument(document);
+                        }
                         else
-                            Console.WriteLine("Invalid document. Please enter a number.");
-                        break;
+                        {
+                            Console.WriteLine("Document cannot be empty.");
+                        }
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine(e);
-                        throw;
+                        Console.WriteLine("An error occurred while searching the doctor.");
+                        Console.WriteLine($"Error: {e.Message}");
                     }
+                    break;
                 }
 
                 case "4":
                 {
                     try
                     {
-                        Console.Write("Enter patient document to update: ");
-                        if (int.TryParse(Console.ReadLine(), out int id))
-                            ServiceDoctor.UpdateVeterinary(id);
+                        Console.Write("Enter doctor document to update: ");
+                        string document = Console.ReadLine()?.Trim() ?? "";
+
+                        if (!string.IsNullOrEmpty(document))
+                        {
+                            ServiceDoctor.UpdateDoctor(document);
+                        }
                         else
-                            Console.WriteLine("Invalid document. Please enter a number.");
-                        break;
+                        {
+                            Console.WriteLine("Document cannot be empty.");
+                        }
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine(e);
-                        throw;
+                        Console.WriteLine("An error occurred while updating the doctor.");
+                        Console.WriteLine($"Error: {e.Message}");
                     }
+                    break;
+
                     
                 }
 
@@ -77,19 +90,25 @@ public static class MenuDoctor
                 {
                     try
                     {
-                        Console.Write("Enter veterinary ID to delete: ");
-                        if (int.TryParse(Console.ReadLine(), out int id))
-                            ServiceDoctor.DeleteVeterinary(id);
+                        Console.Write("Enter doctor document to delete: ");
+                        string document = Console.ReadLine()?.Trim() ?? "";
+
+                        if (!string.IsNullOrEmpty(document))
+                        {
+                            ServiceDoctor.DeleteDoctor(document);
+                        }
                         else
-                            Console.WriteLine("Invalid ID. Please enter a number.");
-                        break;
-                    
+                        {
+                            Console.WriteLine("Document cannot be empty.");
+                        }
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine(e);
-                        throw;
+                        Console.WriteLine("An error occurred while deleting the doctor.");
+                        Console.WriteLine($"Error: {e.Message}");
                     }
+                    break;
+
                 }
 
                 case "6":

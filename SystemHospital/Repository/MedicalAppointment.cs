@@ -54,4 +54,12 @@ public class MedicalAppointmentRepository : IMedicalAppointment
         Database.Database.MedicalAppointment.Remove(id);
         return true;
     }
+    
+    public IEnumerable<MedicalAppointment> GetByDoctorDocument(string doctorDocument)
+    {
+        return Database.Database.MedicalAppointment.Values
+            .OfType<MedicalAppointment>()
+            .Where(a => a.Doctors.Any(d => d.Document == doctorDocument))
+            .ToList();
+    }
 }
