@@ -2,14 +2,13 @@
 
 public static class Query
 {
-    public static void ListDoctors(string specialityFilter = null)
-    {
-        // Private repository instance
-        var _repository = new DoctorRepository();
+    private static readonly DoctorRepository _repository = new DoctorRepository();
 
+    public static void ListDoctors()
+    {
         try
         {
-            // Obtener todos los doctores desde el repositorio
+            // Get all doctors from the repository
             var doctors = _repository.GetAll().ToList();
 
             if (!doctors.Any())
@@ -18,23 +17,51 @@ public static class Query
                 return;
             }
 
-            // Filtrar por especialidad si se proporciona
-            if (!string.IsNullOrWhiteSpace(specialityFilter))
-            {
-                doctors = doctors
-                    .Where(d => d.speciality.Equals(specialityFilter, StringComparison.OrdinalIgnoreCase))
-                    .ToList();
+            // Get unique specialities from the registered doctors
+            var uniqueSpecialities = doctors
+                .Select(d => d.speciality)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
 
-                if (!doctors.Any())
-                {
-                    Console.WriteLine($"No doctors found with speciality '{specialityFilter}'.");
-                    return;
-                }
+            // Display unique specialities
+            Console.WriteLine("\n=== Registered Specialities ===");
+            for (int i = 0; i < uniqueSpecialities.Count; i++)
+            {
+                Console.WriteLine($"{i + 1}. {uniqueSpecialities[i]}");
             }
 
-            // Mostrar lista de doctores
+            // Ask user to select a speciality
+            string chosenSpeciality = null;
+            while (true)
+            {
+                Console.WriteLine("\nEnter the number of the speciality you want to see (or press Enter to see all):");
+                string input = Console.ReadLine()?.Trim();
+
+                if (string.IsNullOrEmpty(input))
+                {
+                    // User pressed Enter: show all doctors
+                    break;
+                }
+
+                if (int.TryParse(input, out int specialityIndex) &&
+                    specialityIndex >= 1 && specialityIndex <= uniqueSpecialities.Count)
+                {
+                    chosenSpeciality = uniqueSpecialities[specialityIndex - 1];
+                    break;
+                }
+
+                Console.WriteLine("Invalid option. Please enter a valid number.");
+            }
+
+            // Filter doctors by selected speciality if applicable
+            var filteredDoctors = string.IsNullOrEmpty(chosenSpeciality)
+                ? doctors
+                : doctors.Where(d => d.speciality.Equals(chosenSpeciality, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+
+            // Display doctors
             Console.WriteLine("\n=== List of Registered Doctors ===");
-            foreach (var doc in doctors)
+            foreach (var doc in filteredDoctors)
             {
                 Console.WriteLine($"Name: {doc.FirstName} {doc.LastName}");
                 Console.WriteLine($"Document: {doc.Document}");
@@ -45,6 +72,10 @@ public static class Query
                 Console.WriteLine($"Date of Birth: {doc.DateOfBirth:yyyy-MM-dd}");
                 Console.WriteLine("--------------------------------");
             }
+
+            // Wait for user to press Enter before continuing
+            Console.WriteLine("\nPress Enter to continue...");
+            Console.ReadLine();
         }
         catch (Exception e)
         {

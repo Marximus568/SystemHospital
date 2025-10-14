@@ -47,6 +47,11 @@ public static class MenuMain
                         MenuMedicalAppointment.ShowMedicalAppointment();
                         break;
                     }
+                    case "4":
+                    {
+                        Query.ListDoctors();
+                        break;
+                    }
                     case "5":
                     {
                         exit = true;
